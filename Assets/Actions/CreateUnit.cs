@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
+[System.Serializable]
 public class CreateUnit : IAction {
     public int playerId;
     public UnitType type;
@@ -16,23 +18,6 @@ public class CreateUnit : IAction {
 	public void DoAction()
     {
         Debug.Log("CreateUnit: (playerId=" + playerId + ", type=" + type.ToString() + ")");
-    }
-
-    public MyMsgType GetMsgType()
-    {
-        return MyMsgType.CreateUnit;
-    }
-
-    public MessageBase GetMsgBase()
-    {
-        MyMsgCreateUnit msg = new MyMsgCreateUnit();
-        msg.playerId = playerId;
-        msg.unitType = (int)type;
-        return msg;
-    }
-
-    public void DebugLog()
-    {
-        Debug.Log("Msg parsed");
+        SceneManager.singleton.SpawnMarine(playerId);
     }
 }

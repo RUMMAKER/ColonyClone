@@ -67,7 +67,8 @@
     <Compile Include="Assets\MyNetworkManager.cs" />
     <Compile Include="Assets\NetworkMessages.cs" />
     <Compile Include="Assets\SceneManager.cs" />
-    <Compile Include="Assets\Unit.cs" />
+    <Compile Include="Assets\Units\Marine.cs" />
+    <Compile Include="Assets\Units\Unit.cs" />
     <Reference Include="UnityEditor.StandardEvents">
       <HintPath>C:/UnityProjects/ColonyClone/Library/ScriptAssemblies/UnityEditor.StandardEvents.dll</HintPath>
     </Reference>

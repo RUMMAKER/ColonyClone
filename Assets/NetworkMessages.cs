@@ -5,27 +5,13 @@ using UnityEngine.Networking;
 
 public enum MyMsgType : short
 {
-    CreateUnit = 1000
+    Actions = 1000,
+    Seed = 1001,
+    PlayerId = 1002,
+    StartGame = 1003
 }
 
-public class MyMsgCreateUnit : MessageBase
+public class MyMsgActions : MessageBase
 {
-    public int playerId;
-    public int unitType;
-}
-
-// Reads NetworkMessage and return the corresponding IAction.
-public class MyMsgReader
-{
-    public static IAction ReadMsg(NetworkMessage netMsg)
-    {
-        MyMsgType type = (MyMsgType)netMsg.msgType;
-        switch (type)
-        {
-            case MyMsgType.CreateUnit:
-                MyMsgCreateUnit msg = netMsg.ReadMessage<MyMsgCreateUnit>();
-                return new CreateUnit((UnitType)msg.unitType, msg.playerId);
-        }
-        return null;
-    }
+    public byte[] serializedObj;
 }

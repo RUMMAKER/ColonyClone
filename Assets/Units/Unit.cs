@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class Unit : MonoBehaviour, IHasGameUpdate {
-    public int playerId;
-    public int objectId;
+    abstract public int PlayerId { get; set; }
+    abstract public int UnitId { get; set; }
     public abstract void GameUpdate();
 }

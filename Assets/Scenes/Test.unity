@@ -152,6 +152,12 @@ Prefab:
       propertyPath: m_RootOrder
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 114374210954135746, guid: 120e90491f0570449b8d279c0f39e47c,
+        type: 2}
+      propertyPath: marinePrefab
+      value: 
+      objectReference: {fileID: 1804431973183266, guid: 9702ff816f1abc3469559f5d2c333001,
+        type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 120e90491f0570449b8d279c0f39e47c, type: 2}
   m_IsPrefabAsset: 0

@@ -53,6 +53,8 @@ public class LockStepManager : MonoBehaviour {
     }
 
     void Update () {
+        if (!SceneManager.singleton.gameStarted) return;
+
         timeSinceLastGameUpdate += Time.deltaTime;
         if (timeSinceLastGameUpdate >= gameUpdateFrequency)
         {
@@ -69,9 +71,9 @@ public class LockStepManager : MonoBehaviour {
         }
         if (lockStepSuccess)
         {
-            foreach (IHasGameUpdate obj in SceneManager.singleton.gameUpdateObjs)
+            foreach (KeyValuePair<int, IHasGameUpdate> kv in SceneManager.singleton.gameUpdateObjs)
             {
-                obj.GameUpdate();
+                kv.Value.GameUpdate();
             }
         }
         gameUpdateCount++;
@@ -84,7 +86,7 @@ public class LockStepManager : MonoBehaviour {
         if (nextStep == null) return false;
 
         // Send Actions to server.
-        MyNetworkManager.singleton.ClientSendLockStepActions(SceneManager.singleton.actions);
+        MyNetworkManager.singleton.ClientSendActions(SceneManager.singleton.actions);
         SceneManager.singleton.actions.Clear();
 
         foreach (IAction action in nextStep)
@@ -92,5 +94,10 @@ public class LockStepManager : MonoBehaviour {
             action.DoAction();
         }
         return true;
+    }
+
+    public void AddLockStepActions(List<IAction> actions)
+    {
+        lockStepQueue.Push(actions);
     }
 }

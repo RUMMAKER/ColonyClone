@@ -9,9 +9,6 @@ public interface IHasGameUpdate
 public interface IAction
 {
     void DoAction();
-    MyMsgType GetMsgType();
-    MessageBase GetMsgBase();
-    void DebugLog();
 }
 
 public enum UnitType

@@ -61,12 +61,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Actions\CreateUnit.cs" />
+    <Compile Include="Assets\Actions\BaseAction.cs" />
     <Compile Include="Assets\Definitions.cs" />
+    <Compile Include="Assets\GUIManager.cs" />
+    <Compile Include="Assets\LockStepActions\CreateUnit.cs" />
     <Compile Include="Assets\LockStepManager.cs" />
     <Compile Include="Assets\MyNetworkManager.cs" />
     <Compile Include="Assets\NetworkMessages.cs" />
     <Compile Include="Assets\SceneManager.cs" />
+    <Compile Include="Assets\SelectionBox.cs" />
     <Compile Include="Assets\Units\Marine.cs" />
     <Compile Include="Assets\Units\Unit.cs" />
     <Reference Include="UnityEditor.StandardEvents">

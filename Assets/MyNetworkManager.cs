@@ -10,11 +10,11 @@ public class MyNetworkManager : MonoBehaviour
 {
     private class ClientInfo {
         public int playerId;
-        public List<List<IAction>> clientActions;
+        public List<List<ILockStepAction>> clientActions;
         public ClientInfo()
         {
             playerId = -1;
-            clientActions = new List<List<IAction>>();
+            clientActions = new List<List<ILockStepAction>>();
         }
     }
     Dictionary<int, ClientInfo> clientInfo = new Dictionary<int, ClientInfo>();
@@ -119,8 +119,8 @@ public class MyNetworkManager : MonoBehaviour
         // On receive action from server, add action to lockstepmanager's action list.
         MyMsgActions msg = netMsg.ReadMessage<MyMsgActions>();
         byte[] objAsBytes = msg.serializedObj;
-        IAction[] actions = DeSerializeActionsArr(objAsBytes);
-        LockStepManager.singleton.AddLockStepActions(new List<IAction>(actions));
+        ILockStepAction[] actions = DeSerializeActionsArr(objAsBytes);
+        LockStepManager.singleton.AddLockStepActions(new List<ILockStepAction>(actions));
     }
     public void ClientOnGameStart(NetworkMessage netMsg)
     {
@@ -130,8 +130,8 @@ public class MyNetworkManager : MonoBehaviour
         // This is VERY important because this will build a buffer of lockstep actions.
         // If this is not done, lockstepmanager will NEVER send any actions to server because
         // lockstepmanager will only send actions AFTER successfully executing an action it receive from server.
-        ClientSendActions(new List<IAction>());
-        ClientSendActions(new List<IAction>());
+        ClientSendActions(new List<ILockStepAction>());
+        ClientSendActions(new List<ILockStepAction>());
     }
     public void ServerOnConnected(NetworkMessage netMsg)
     {
@@ -146,8 +146,8 @@ public class MyNetworkManager : MonoBehaviour
         // Add client action to clientInfo.
         MyMsgActions msg = netMsg.ReadMessage<MyMsgActions>();
         byte[] objAsBytes = msg.serializedObj;
-        IAction[] actions = DeSerializeActionsArr(objAsBytes);
-        clientInfo[netMsg.conn.connectionId].clientActions.Add(new List<IAction>(actions));
+        ILockStepAction[] actions = DeSerializeActionsArr(objAsBytes);
+        clientInfo[netMsg.conn.connectionId].clientActions.Add(new List<ILockStepAction>(actions));
 
         // Check if all clients have sent actions.
         foreach (NetworkConnection conn in NetworkServer.connections)
@@ -156,7 +156,7 @@ public class MyNetworkManager : MonoBehaviour
         }
 
         // If so, dequeue action from all clients and send to all clients.
-        List<IAction> allClientActions = new List<IAction>();
+        List<ILockStepAction> allClientActions = new List<ILockStepAction>();
         foreach (NetworkConnection conn in NetworkServer.connections)
         {
             allClientActions.AddRange(clientInfo[conn.connectionId].clientActions[0]);
@@ -167,10 +167,10 @@ public class MyNetworkManager : MonoBehaviour
         NetworkServer.SendToAll((short)MyMsgType.Actions, msgSend);
     }
 
-    public void ClientSendActions(List<IAction> actions)
+    public void ClientSendActions(List<ILockStepAction> actions)
     {
         // Send actions to server.
-        IAction[] actionsToSend = actions.ToArray();
+        ILockStepAction[] actionsToSend = actions.ToArray();
         MyMsgActions msg = new MyMsgActions();
         msg.serializedObj = SerializeActionsArr(actionsToSend);
         myClient.Send((short)MyMsgType.Actions, msg);
@@ -183,7 +183,7 @@ public class MyNetworkManager : MonoBehaviour
     }
 
     // Serializer helpers.
-    private byte[] SerializeActionsArr(IAction[] actions)
+    private byte[] SerializeActionsArr(ILockStepAction[] actions)
     {
         MemoryStream stream = new MemoryStream();
         BinaryFormatter formatter = new BinaryFormatter();
@@ -192,14 +192,14 @@ public class MyNetworkManager : MonoBehaviour
         stream.Close();
         return serializedObj;
     }
-    private IAction[] DeSerializeActionsArr(byte[] actions)
+    private ILockStepAction[] DeSerializeActionsArr(byte[] actions)
     {
-        IAction[] deserializedActions = null;
+        ILockStepAction[] deserializedActions = null;
         MemoryStream stream = new MemoryStream();
         stream.Write(actions, 0, actions.Length);
         stream.Seek(0, SeekOrigin.Begin);
         BinaryFormatter formatter = new BinaryFormatter();
-        deserializedActions = (IAction[])formatter.Deserialize(stream);
+        deserializedActions = (ILockStepAction[])formatter.Deserialize(stream);
         stream.Close();
         return deserializedActions;
     }

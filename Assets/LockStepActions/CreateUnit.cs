@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 [System.Serializable]
-public class CreateUnit : IAction {
+public class CreateUnit : ILockStepAction {
     public int playerId;
     public UnitType type;
 
@@ -15,7 +15,7 @@ public class CreateUnit : IAction {
         type = t;
     }
 
-	public void DoAction()
+	public void DoLockStepAction()
     {
         Debug.Log("CreateUnit: (playerId=" + playerId + ", type=" + type.ToString() + ")");
         SceneManager.singleton.SpawnMarine(playerId);

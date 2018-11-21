@@ -6,22 +6,22 @@ public class LockStepManager : MonoBehaviour {
 
     private class LockStepQueue
     {
-        private List<List<IAction>> lockStepQueue;
+        private List<List<ILockStepAction>> lockStepQueue;
 
         public LockStepQueue()
         {
-            lockStepQueue = new List<List<IAction>>();
+            lockStepQueue = new List<List<ILockStepAction>>();
         }
 
-        public void Push(List<IAction> lockStepStep)
+        public void Push(List<ILockStepAction> lockStepStep)
         {
             lockStepQueue.Add(lockStepStep);
         }
 
-        public List<IAction> Pop()
+        public List<ILockStepAction> Pop()
         {
             if (lockStepQueue.Count == 0) return null;
-            List<IAction> returnable = lockStepQueue[0];
+            List<ILockStepAction> returnable = lockStepQueue[0];
             lockStepQueue.RemoveAt(0);
             return returnable;
         }
@@ -82,21 +82,21 @@ public class LockStepManager : MonoBehaviour {
 
     bool LockStepUpdate()
     {
-        List<IAction> nextStep = lockStepQueue.Pop();
+        List<ILockStepAction> nextStep = lockStepQueue.Pop();
         if (nextStep == null) return false;
 
         // Send Actions to server.
         MyNetworkManager.singleton.ClientSendActions(SceneManager.singleton.actions);
         SceneManager.singleton.actions.Clear();
 
-        foreach (IAction action in nextStep)
+        foreach (ILockStepAction action in nextStep)
         {
-            action.DoAction();
+            action.DoLockStepAction();
         }
         return true;
     }
 
-    public void AddLockStepActions(List<IAction> actions)
+    public void AddLockStepActions(List<ILockStepAction> actions)
     {
         lockStepQueue.Push(actions);
     }

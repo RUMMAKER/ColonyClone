@@ -4,36 +4,9 @@ using UnityEngine;
 
 public class LockStepManager : MonoBehaviour {
 
-    private class LockStepQueue
-    {
-        private List<List<ILockStepAction>> lockStepQueue;
-
-        public LockStepQueue()
-        {
-            lockStepQueue = new List<List<ILockStepAction>>();
-        }
-
-        public void Push(List<ILockStepAction> lockStepStep)
-        {
-            lockStepQueue.Add(lockStepStep);
-        }
-
-        public List<ILockStepAction> Pop()
-        {
-            if (lockStepQueue.Count == 0) return null;
-            List<ILockStepAction> returnable = lockStepQueue[0];
-            lockStepQueue.RemoveAt(0);
-            return returnable;
-        }
-
-        public int Count()
-        {
-            return lockStepQueue.Count;
-        }
-    }
-
     public static LockStepManager singleton = null;
-    private LockStepQueue lockStepQueue;
+    private List<ILockStepAction> pendingActions = new List<ILockStepAction>();
+    private List<List<ILockStepAction>> confirmedActions = new List<List<ILockStepAction>>();
     private bool lockStepSuccess = false;
 
     private float timeSinceLastGameUpdate = 0f;
@@ -45,13 +18,11 @@ public class LockStepManager : MonoBehaviour {
     {
         if (singleton != null)
         {
-            GameObject.Destroy(gameObject);
+            Destroy(gameObject);
             return;
         }
         singleton = this;
-        lockStepQueue = new LockStepQueue();
     }
-
     void Update () {
         if (!SceneManager.singleton.gameStarted) return;
 
@@ -61,7 +32,6 @@ public class LockStepManager : MonoBehaviour {
             GameUpdate();
         }
 	}
-
     void GameUpdate()
     {
         if (gameUpdateCount == gameUpdatePerLockstep)
@@ -71,7 +41,7 @@ public class LockStepManager : MonoBehaviour {
         }
         if (lockStepSuccess)
         {
-            foreach (KeyValuePair<int, IHasGameUpdate> kv in SceneManager.singleton.gameUpdateObjs)
+            foreach (KeyValuePair<int, Unit> kv in SceneManager.singleton.units)
             {
                 kv.Value.GameUpdate();
             }
@@ -79,15 +49,16 @@ public class LockStepManager : MonoBehaviour {
         gameUpdateCount++;
         timeSinceLastGameUpdate -= gameUpdateFrequency;
     }
-
     bool LockStepUpdate()
     {
-        List<ILockStepAction> nextStep = lockStepQueue.Pop();
-        if (nextStep == null) return false;
+        if (confirmedActions.Count == 0) return false;
 
-        // Send Actions to server.
-        MyNetworkManager.singleton.ClientSendActions(SceneManager.singleton.actions);
-        SceneManager.singleton.actions.Clear();
+        // Dequeue the next confirmedAction.
+        List<ILockStepAction> nextStep = confirmedActions[0];
+        confirmedActions.RemoveAt(0);
+        // Send pendingActions to server.
+        MyNetworkManager.singleton.ClientSendActions(pendingActions);
+        pendingActions.Clear();
 
         foreach (ILockStepAction action in nextStep)
         {
@@ -96,8 +67,12 @@ public class LockStepManager : MonoBehaviour {
         return true;
     }
 
-    public void AddLockStepActions(List<ILockStepAction> actions)
+    public void AddPendingAction(ILockStepAction action)
     {
-        lockStepQueue.Push(actions);
+        pendingActions.Add(action);
+    }
+    public void AddConfirmedActions(List<ILockStepAction> actions)
+    {
+        confirmedActions.Add(actions);
     }
 }

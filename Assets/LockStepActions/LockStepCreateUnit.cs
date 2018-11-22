@@ -5,11 +5,11 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 [System.Serializable]
-public class CreateUnit : ILockStepAction {
+public class LockStepCreateUnit : ILockStepAction {
     public int playerId;
     public UnitType type;
 
-    public CreateUnit(UnitType t, int id)
+    public LockStepCreateUnit(UnitType t, int id)
     {
         playerId = id;
         type = t;

@@ -62,14 +62,21 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Actions\BaseAction.cs" />
+    <Compile Include="Assets\Actions\SetUnitStateAction.cs" />
     <Compile Include="Assets\Definitions.cs" />
     <Compile Include="Assets\GUIManager.cs" />
-    <Compile Include="Assets\LockStepActions\CreateUnit.cs" />
+    <Compile Include="Assets\LockStepActions\LockStepCreateUnit.cs" />
+    <Compile Include="Assets\LockStepActions\LockStepSetUnitState.cs" />
     <Compile Include="Assets\LockStepManager.cs" />
     <Compile Include="Assets\MyNetworkManager.cs" />
     <Compile Include="Assets\NetworkMessages.cs" />
+    <Compile Include="Assets\PlayerManager.cs" />
     <Compile Include="Assets\SceneManager.cs" />
     <Compile Include="Assets\SelectionBox.cs" />
+    <Compile Include="Assets\UI\UIPanel.cs" />
+    <Compile Include="Assets\UI\UnitBackButton.cs" />
+    <Compile Include="Assets\UI\UnitForwardButton.cs" />
+    <Compile Include="Assets\UI\UnitHoldButton.cs" />
     <Compile Include="Assets\Units\Marine.cs" />
     <Compile Include="Assets\Units\Unit.cs" />
     <Reference Include="UnityEditor.StandardEvents">

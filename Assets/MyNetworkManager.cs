@@ -9,29 +9,21 @@ using System.Runtime.Serialization.Formatters.Binary;
 public class MyNetworkManager : MonoBehaviour
 {
     private class ClientInfo {
+        public string playerName;
         public int playerId;
-        public List<List<ILockStepAction>> clientActions;
-        public ClientInfo()
-        {
-            playerId = -1;
-            clientActions = new List<List<ILockStepAction>>();
-        }
+        public List<List<ILockStepAction>> clientActions = new List<List<ILockStepAction>>();
     }
     Dictionary<int, ClientInfo> clientInfo = new Dictionary<int, ClientInfo>();
 
-    public static MyNetworkManager singleton = null;
+    public static MyNetworkManager singleton;
     public bool isAtStartup = true;
     NetworkClient myClient;
-
-    // seed is syncronized across all client/server to ensure determinism.
-    public int seed;
-    
 
     void Awake()
     {
         if (singleton != null)
         {
-            GameObject.Destroy(gameObject);
+            Destroy(gameObject);
             return;
         }
         singleton = this;
@@ -76,7 +68,7 @@ public class MyNetworkManager : MonoBehaviour
     public void SetupServer()
     {
         // Initialize seed value.
-        seed = new System.Random().Next();
+        SceneManager.singleton.seed = new System.Random().Next();
         // Register message handlers.
         NetworkServer.RegisterHandler(MsgType.Connect, ServerOnConnected);
         NetworkServer.RegisterHandler((short)MyMsgType.Actions, ServerOnAction);
@@ -110,9 +102,9 @@ public class MyNetworkManager : MonoBehaviour
     public void ClientOnSeed(NetworkMessage netMsg)
     {
         // On receive seed from server, set seed to same value.
-        seed = netMsg.ReadMessage<IntegerMessage>().value;
-        SceneManager.singleton.rng = new System.Random(seed);
-        Debug.Log("CLIENT: Receive seed " + seed + " from server.");
+        SceneManager.singleton.seed = netMsg.ReadMessage<IntegerMessage>().value;
+        SceneManager.singleton.rng = new System.Random(SceneManager.singleton.seed);
+        Debug.Log("CLIENT: Receive seed " + SceneManager.singleton.seed + " from server.");
     }
     public void ClientOnAction(NetworkMessage netMsg)
     {
@@ -120,7 +112,7 @@ public class MyNetworkManager : MonoBehaviour
         MyMsgActions msg = netMsg.ReadMessage<MyMsgActions>();
         byte[] objAsBytes = msg.serializedObj;
         ILockStepAction[] actions = DeSerializeActionsArr(objAsBytes);
-        LockStepManager.singleton.AddLockStepActions(new List<ILockStepAction>(actions));
+        LockStepManager.singleton.AddConfirmedActions(new List<ILockStepAction>(actions));
     }
     public void ClientOnGameStart(NetworkMessage netMsg)
     {
@@ -139,7 +131,7 @@ public class MyNetworkManager : MonoBehaviour
         // Keep track of clientInfo object for the new connection.
         clientInfo[netMsg.conn.connectionId] = new ClientInfo();
         // Send seed value to new connection to sync seed value.
-        netMsg.conn.Send((short)MyMsgType.Seed, new IntegerMessage(seed));
+        netMsg.conn.Send((short)MyMsgType.Seed, new IntegerMessage(SceneManager.singleton.seed));
     }
     public void ServerOnAction(NetworkMessage netMsg)
     {
@@ -187,7 +179,15 @@ public class MyNetworkManager : MonoBehaviour
     {
         MemoryStream stream = new MemoryStream();
         BinaryFormatter formatter = new BinaryFormatter();
-        formatter.Serialize(stream, actions); // Should put in try-catch.
+        try
+        {
+            formatter.Serialize(stream, actions);
+        }
+        catch
+        {
+            Debug.Log("Serialization failed.");
+        }
+        
         byte[] serializedObj = stream.ToArray();
         stream.Close();
         return serializedObj;

@@ -11,12 +11,13 @@ public class SceneManager : MonoBehaviour {
     private Point team2Spawn;
     public GameObject marinePrefab;
     private int unitIdCounter = 0;
-    public System.Random rng = null;
+
+    public int seed;
+    public System.Random rng;
     public bool gameStarted = false;
     // SortedDictionary allows quick lookup of object while keeping order (determinism is important for lockstep).
-    public SortedDictionary<int, IHasGameUpdate> gameUpdateObjs = new SortedDictionary<int, IHasGameUpdate>();
-    public List<ILockStepAction> actions = new List<ILockStepAction>();
-
+    public SortedDictionary<int, Unit> units = new SortedDictionary<int, Unit>();
+    
     void Awake () {
         if (singleton != null)
         {
@@ -32,7 +33,7 @@ public class SceneManager : MonoBehaviour {
         if (!gameStarted) return;
         if (Input.GetKeyDown(KeyCode.G))
         {
-            AddAction(new CreateUnit(UnitType.Marine, 0));
+            LockStepManager.singleton.AddPendingAction(new LockStepCreateUnit(UnitType.Marine, 0));
         }
     }
     void OnGUI()
@@ -41,28 +42,25 @@ public class SceneManager : MonoBehaviour {
         GUI.Label(new Rect(2, 30, 300, 100), "Press G to spawn marine(test)");
     }
 
-    public void AddAction(ILockStepAction a)
-    {
-        actions.Add(a);
-    }
-
     // Methods for spawning units.
     public void SpawnMarine(int playerId)
     {
         Point spawnPoint = team1Spawn;
         if (playerId >= 2) spawnPoint = team2Spawn;
-        Point InitialPosition = new Point(spawnPoint.x + rng.Next(-20, 20),
-                                          spawnPoint.y + rng.Next(-150, 150));
+        int xOffset = rng.Next(-20, 20);
+        int yOffset = rng.Next(-150, 150);
+        Point InitialPosition = new Point(spawnPoint.x + xOffset,
+                                          spawnPoint.y + yOffset);
 
         GameObject obj = GameObject.Instantiate(marinePrefab);
         Marine m = obj.GetComponent<Marine>();
         m.PlayerId = playerId;
         m.UnitId = GetNextUnitId();
-        m.SpawnPosition = InitialPosition;
+        m.XOffset = xOffset;
         m.Position = InitialPosition;
         m.State = UnitState.Initial;
         obj.transform.position = m.Position.ToVector3();
-        gameUpdateObjs.Add(m.UnitId, m); // Keep reference in collection.
+        units.Add(m.UnitId, m); // Keep reference in collection.
     }
 
     // Helper functions.

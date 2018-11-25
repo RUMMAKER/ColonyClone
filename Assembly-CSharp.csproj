@@ -61,22 +61,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Actions\BaseAction.cs" />
-    <Compile Include="Assets\Actions\SetUnitStateAction.cs" />
+    <Compile Include="Assets\CameraScroll.cs" />
     <Compile Include="Assets\Definitions.cs" />
-    <Compile Include="Assets\GUIManager.cs" />
-    <Compile Include="Assets\LockStepActions\LockStepCreateUnit.cs" />
-    <Compile Include="Assets\LockStepActions\LockStepSetUnitState.cs" />
-    <Compile Include="Assets\LockStepManager.cs" />
-    <Compile Include="Assets\MyNetworkManager.cs" />
-    <Compile Include="Assets\NetworkMessages.cs" />
-    <Compile Include="Assets\PlayerManager.cs" />
-    <Compile Include="Assets\SceneManager.cs" />
-    <Compile Include="Assets\SelectionBox.cs" />
+    <Compile Include="Assets\Managers\GUIManager.cs" />
+    <Compile Include="Assets\Managers\LockStepManager.cs" />
+    <Compile Include="Assets\Managers\MyNetworkManager.cs" />
+    <Compile Include="Assets\Managers\PlayerManager.cs" />
+    <Compile Include="Assets\Managers\ResourceManager.cs" />
+    <Compile Include="Assets\Managers\SceneManager.cs" />
+    <Compile Include="Assets\Managers\SpawnManager.cs" />
+    <Compile Include="Assets\UI\SelectionBox.cs" />
     <Compile Include="Assets\UI\UIPanel.cs" />
-    <Compile Include="Assets\UI\UnitBackButton.cs" />
-    <Compile Include="Assets\UI\UnitForwardButton.cs" />
-    <Compile Include="Assets\UI\UnitHoldButton.cs" />
+    <Compile Include="Assets\Units\AOE.cs" />
+    <Compile Include="Assets\Units\Buildings\Building.cs" />
+    <Compile Include="Assets\Units\Bullet.cs" />
+    <Compile Include="Assets\Units\HitBox.cs" />
     <Compile Include="Assets\Units\Marine.cs" />
     <Compile Include="Assets\Units\Unit.cs" />
     <Reference Include="UnityEditor.StandardEvents">

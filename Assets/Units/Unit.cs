@@ -2,62 +2,72 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using System.Linq;
 
-public class Unit : MonoBehaviour, IHasGameUpdate
+public class Unit : SelectableBehaviour, IHasGameUpdate
 {
-    public virtual int PlayerId { get; set; }
-    public virtual int UnitId { get; set; }
-    public virtual int XOffset { get; set; }
-    public virtual Point Position { get; set; }
-    public virtual UnitState State { get; set; }
-    public virtual int Speed { get; set; }
+    public HitBox[] hitboxes;
+    public int xOffset; // offset at spawn.
+    public Point position;
+    public UnitState state;
+    public int speed;
+    private SpriteRenderer sr;
 
-    private void Start()
+    protected virtual void Awake()
     {
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
-        if (PlayerId == 0)
+        position = new Point(0,0);
+        hitboxes = new HitBox[0];
+        selectableName = "Unit";
+        selectableDesc = "Unit Desc";
+        sr = GetComponent<SpriteRenderer>();
+    }
+    protected virtual void Start()
+    {
+        SetColorBasedOnPlayerId();
+    }
+    private void SetColorBasedOnPlayerId()
+    {
+        if (playerId == 0)
         {
             sr.color = Color.red;
         }
-        if (PlayerId == 1)
+        if (playerId == 1)
         {
             sr.color = Color.yellow;
         }
-        if (PlayerId == 2)
+        if (playerId == 2)
         {
             sr.color = Color.green;
         }
-        if (PlayerId == 3)
+        if (playerId == 3)
         {
             sr.color = Color.blue;
         }
     }
-
     public virtual void GameUpdate()
     {
         Move();
     }
-
     private void Move()
     {
         int direction = 1;
-        if (PlayerId >= 2) direction = -1;
+        if (playerId >= 2) direction = -1;
 
-        switch (State)
+        switch (state)
         {
             case UnitState.Initial:
                 return;
             case UnitState.Forward:
-                Position.Add(new Point(direction * Speed, 0));
+                position.Add(new Point(direction * speed, 0));
                 KeepInBound();
-                gameObject.transform.position = Position.ToVector3();
+                gameObject.transform.position = position.ToVector3();
                 return;
             case UnitState.Hold:
                 return;
             case UnitState.Back:
-                Position.Add(new Point(-direction * Speed, 0));
+                position.Add(new Point(-direction * speed, 0));
                 KeepInBound();
-                gameObject.transform.position = Position.ToVector3();
+                gameObject.transform.position = position.ToVector3();
                 return;
             case UnitState.Charge:
                 return;
@@ -65,15 +75,56 @@ public class Unit : MonoBehaviour, IHasGameUpdate
     }
     private void KeepInBound()
     {
-        int leftBorder = (-SceneManager.singleton.mapWidth / 2) + XOffset;
-        int rightBorder = (SceneManager.singleton.mapWidth / 2) + XOffset;
-        if (Position.x < leftBorder)
+        int leftBorder = (-SceneManager.singleton.mapWidth / 2) + xOffset;
+        int rightBorder = (SceneManager.singleton.mapWidth / 2) + xOffset;
+        if (position.x < leftBorder)
         {
-            Position.x = leftBorder;
+            position.x = leftBorder;
         }
-        if (Position.x > rightBorder)
+        if (position.x > rightBorder)
         {
-            Position.x = rightBorder;
+            position.x = rightBorder;
+        }
+    }
+    public override void OnSelect()
+    {
+        base.OnSelect();
+        sr.color = Color.white;
+    }
+    public override void OnDeSelect()
+    {
+        base.OnSelect();
+        SetColorBasedOnPlayerId();
+    }
+    public override UIAction[] GetActions()
+    {
+        int[] unitIds = GUIManager.singleton.selected.Select(x => x.selectableId).ToArray();
+        UIAction[] actions = new UIAction[4];
+        actions[0] = new UIAction("Attack", 
+            "Move forward and attack enemies.", 
+            ResourceManager.singleton.forwardImg, 
+            new ActionSetUnitState(UnitState.Forward, unitIds));
+        actions[1] = new UIAction("Hold",
+            "Hold position and defend.",
+            ResourceManager.singleton.holdImg,
+            new ActionSetUnitState(UnitState.Hold, unitIds));
+        actions[2] = new UIAction("Retreat",
+            "Fall back.",
+            ResourceManager.singleton.backImg,
+            new ActionSetUnitState(UnitState.Back, unitIds));
+        actions[3] = new UIAction("Charge",
+            "Command units to ignore enemies and attack control center.",
+            ResourceManager.singleton.chargeImg,
+            new ActionSetUnitState(UnitState.Charge, unitIds));
+        return actions;
+    }
+
+    // debug draw hitbox.
+    void OnGUI()
+    {
+        foreach (HitBox b in hitboxes)
+        {
+            b.DebugDrawHitbox(position);
         }
     }
 }

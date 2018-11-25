@@ -4,5 +4,13 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class Marine : Unit {
-    public override int Speed { get { return 5; } set { } }
+    override protected void Awake()
+    {
+        base.Awake();
+        speed = 3;
+        selectableName = "Marine";
+        selectableDesc = "Expendable anti-air infantry.";
+        hitboxes = new HitBox[1];
+        hitboxes[0] = new HitBox(40, 80, new Point(0,0));
+    }
 }
